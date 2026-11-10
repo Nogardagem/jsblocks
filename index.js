@@ -35,6 +35,16 @@ window.onload = () => {
         mouseY = y;
     });
 
+    document.body.addEventListener("keydown", function (event) {
+        //console.log(event.code);
+        if (event.code === "Space") {
+            camY += 1;
+        }
+        else if (event.code === "ShiftLeft" || event.code == "ShiftRight") {
+            camY -= 1;
+        }
+    });
+
     
     const rect = document.querySelector('.scene').getBoundingClientRect();
 
@@ -67,10 +77,14 @@ window.onload = () => {
     requestAnimationFrame(frame);
 }
 
-let cx=0;
-let cy=0;
+
 let delta = 0;
 let lastTime = Date.now();
+
+
+let camX = 0;
+let camY = 0;
+let camZ = 0;
 
 function frame() {
     delta = (Date.now() - lastTime) / 1000.0;
@@ -78,7 +92,7 @@ function frame() {
 
     const scene = document.querySelector('.scene');
     const rect = scene.getBoundingClientRect();
-    document.querySelector('.world').style.transform = `rotateX(${- (mouseY/rect.height - 0.5) * 90}deg) rotateY(${(mouseX/rect.width - 0.5) * 90}deg)`;
+    document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${- (mouseY/rect.height - 0.5) * 90}deg) rotateY(${(mouseX/rect.width - 0.5) * 90}deg)  translateX(${camX*100}px) translateY(${camY*100}px)`;
 
     requestAnimationFrame(frame);
 }
