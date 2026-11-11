@@ -21,6 +21,16 @@ class Vec3 {
         return new Vec3(this.x*n, this.y*n, this.z*n);
     }
 
+
+    rotateY(angle) {
+        return new Vec3(this.x*Math.cos(angle)-this.z*Math.sin(angle), this.y, this.x*Math.sin(angle)+this.z*Math.cos(angle));
+    }
+    rotateX(angle) {
+        return new Vec3(this.x, this.y*Math.cos(angle)-this.z*Math.sin(angle), this.y*Math.sin(angle)+this.z*Math.cos(angle));
+    }
+
+
+
     get len() {
         return Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
     }

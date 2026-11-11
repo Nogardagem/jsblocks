@@ -102,9 +102,10 @@ function frame() {
     //center origin
     document.querySelector('.world').style.transform += `translateX(${rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px)`;
 
-    console.log("cam: ", cam);
-    let hit = raycast(document.querySelector('.world'), cam, new Vec3(0, -1, 0), 20);
-    console.log("after return: ", hit);
+    let dir = new Vec3(0, 0, -1).rotateX(angleX*Math.PI / 180).rotateY(angleY*Math.PI / 180);
+    let hit = raycast(document.querySelector('.world'), cam.add(new Vec3(0,0,0)), dir, 20);
+    //document.querySelector('.crosshair').innerText = `x:${dir.x} y:${dir.y} z:${dir.z}`;
+    
     if (hit) {
         document.querySelector('.world .highlight').style.transform = `translateX(${hit.x*100}px) translateY(${-hit.y*100 - 10}px) translateZ(${hit.z*100}px)`;
     }
@@ -174,14 +175,11 @@ function placeBlock(world, x, y, z) {
 
 
 function raycast(world, from, dir, range=10) {
-    for (let i = 0; i < range; i++) {
-        let test = new Vec3(from.x + dir.x*i, from.y + dir.y*i, from.z + dir.z*i);//from.add(dir.scale(i));
-        console.log(`._${Math.round(test.x)}_${Math.round(test.y)}_${Math.round(test.z)}`);
+    for (let i = 0; i < range; i+= 0.1) {
+        let test = from.add(dir.scale(i));
         let t = world.querySelector(`._${Math.round(test.x)}_${Math.round(test.y)}_${Math.round(test.z)}`);
 
-
         if (t) {
-            console.log("before return", test);
             return new Vec3(Math.round(test.x), Math.round(test.y), Math.round(test.z));
         }
     }
