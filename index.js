@@ -34,12 +34,12 @@ window.onload = () => {
 
     const scene = document.querySelector('.scene');
 
-    scene.addEventListener('mousemove', (event) => {
+    window.addEventListener('mousemove', (event) => {
         const rect = scene.getBoundingClientRect();
         
         // Subtract the element's top/left offset from the mouse viewport coordinates
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        const x = event.clientX;
+        const y = event.clientY;
 
         mouseX = x;
         mouseY = y;
