@@ -74,34 +74,42 @@ function frame() {
     if (keys.KeyW) {
         let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI;
 
-        cam.z += walkSpeed*delta*Math.cos(angleY);
-        cam.x += walkSpeed*delta*-Math.sin(angleY);
+        cam.z -= walkSpeed*delta*Math.cos(angleY);
+        cam.x -= walkSpeed*delta*-Math.sin(angleY);
     }
     if (keys.KeyS) {
         let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI;
 
+        cam.z += walkSpeed*delta*Math.cos(angleY);
+        cam.x += walkSpeed*delta*-Math.sin(angleY);
+    }
+    if (keys.KeyA) {
+        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI - 0.5*Math.PI;
+
         cam.z -= walkSpeed*delta*Math.cos(angleY);
         cam.x -= walkSpeed*delta*-Math.sin(angleY);
     }
-    if (keys.KeyA) {
+    if (keys.KeyD) {
         let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI - 0.5*Math.PI;
 
         cam.z += walkSpeed*delta*Math.cos(angleY);
         cam.x += walkSpeed*delta*-Math.sin(angleY);
     }
-    if (keys.KeyD) {
-        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI - 0.5*Math.PI;
-
-        cam.z -= walkSpeed*delta*Math.cos(angleY);
-        cam.x -= walkSpeed*delta*-Math.sin(angleY);
-    }
 
 
-    document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${angleX}deg) rotateY(${angleY}deg)  translateX(${cam.x*100}px) translateY(${cam.y*100}px) translateZ(${cam.z*100}px)`;
+    document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${angleX}deg) rotateY(${angleY}deg)  translateX(${-cam.x*100}px) translateY(${cam.y*100}px) translateZ(${-cam.z*100}px)`;
     
     //center origin
     document.querySelector('.world').style.transform += `translateX(${rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px)`;
 
+    console.log("cam: ", cam);
+    let hit = raycast(document.querySelector('.world'), cam, new Vec3(0, -1, 0), 20);
+    console.log("after return: ", hit);
+    if (hit) {
+        document.querySelector('.world .highlight').style.transform = `translateX(${hit.x*100}px) translateY(${-hit.y*100 - 10}px) translateZ(${hit.z*100}px)`;
+    }
+
+    
     requestAnimationFrame(frame);
 }
 
@@ -109,7 +117,7 @@ function frame() {
 
 function placeBlock(world, x, y, z) {
     const block = document.createElement('div');
-    block.className = `cube b${x}_${y}_${z}`;
+    block.className = `cube _${x}_${y}_${z}`;
     block.style.transform = `translateX(${x*100}px) translateY(${-y*100}px) translateZ(${z*100}px)`;
     block.innerHTML = `
         <div class="face front">front</div>
@@ -122,43 +130,61 @@ function placeBlock(world, x, y, z) {
 
     let s;
 
-    s = world.querySelector(`.cube.b${x}_${y-1}_${z}`);
+    s = world.querySelector(`.cube._${x}_${y-1}_${z}`);
     if (s) {
         s.querySelector('.top').remove();
         block.querySelector('.bottom').remove();
     }
 
-    s = world.querySelector(`.cube.b${x}_${y+1}_${z}`);
+    s = world.querySelector(`.cube._${x}_${y+1}_${z}`);
     if (s) {
         s.querySelector('.bottom').remove();
         block.querySelector('.top').remove();
     }
 
 
-    s = world.querySelector(`.cube.b${x-1}_${y}_${z}`);
+    s = world.querySelector(`.cube._${x-1}_${y}_${z}`);
     if (s) {
         s.querySelector('.right').remove();
         block.querySelector('.left').remove();
     }
 
-    s = world.querySelector(`.cube.b${x+1}_${y}_${z}`);
+    s = world.querySelector(`.cube._${x+1}_${y}_${z}`);
     if (s) {
         s.querySelector('.left').remove();
         block.querySelector('.right').remove();
     }
 
 
-    s = world.querySelector(`.cube.b${x}_${y}_${z-1}`);
+    s = world.querySelector(`.cube._${x}_${y}_${z-1}`);
     if (s) {
         s.querySelector('.front').remove();
         block.querySelector('.back').remove();
     }
 
-    s = world.querySelector(`.cube.b${x}_${y}_${z+1}`);
+    s = world.querySelector(`.cube._${x}_${y}_${z+1}`);
     if (s) {
         s.querySelector('.back').remove();
         block.querySelector('.front').remove();
     }
 
     world.appendChild(block);
+}
+
+
+
+function raycast(world, from, dir, range=10) {
+    for (let i = 0; i < range; i++) {
+        let test = new Vec3(from.x + dir.x*i, from.y + dir.y*i, from.z + dir.z*i);//from.add(dir.scale(i));
+        console.log(`._${Math.round(test.x)}_${Math.round(test.y)}_${Math.round(test.z)}`);
+        let t = world.querySelector(`._${Math.round(test.x)}_${Math.round(test.y)}_${Math.round(test.z)}`);
+
+
+        if (t) {
+            console.log("before return", test);
+            return new Vec3(Math.round(test.x), Math.round(test.y), Math.round(test.z));
+        }
+    }
+
+    return undefined;
 }

@@ -17,6 +17,10 @@ class Vec3 {
         return new Vec3(this.x/this.len, this.y/this.len, this.z/this.len);
     }
 
+    scale(n=1) {
+        return new Vec3(this.x*n, this.y*n, this.z*n);
+    }
+
     get len() {
         return Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z);
     }
