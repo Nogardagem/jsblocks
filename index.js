@@ -111,7 +111,8 @@ function frame() {
     //document.querySelector('.crosshair').innerText = `x:${dir.x} y:${dir.y} z:${dir.z}`;
     
     if (hit) {
-        document.querySelector('.world .highlight').style.transform = `translateX(${hit.x*100}px) translateY(${-hit.y*100 - 10}px) translateZ(${hit.z*100}px)`;
+        //offsets by ten for difference in highlight vs block size (halved)
+        document.querySelector('.world .highlight').style.transform = `translateX(${hit.x*100 -10}px) translateY(${-hit.y*100 -10}px) translateZ(${hit.z*100}px)`;
     }
 
     
