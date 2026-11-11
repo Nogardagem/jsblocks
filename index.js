@@ -49,9 +49,7 @@ let delta = 0;
 let lastTime = Date.now();
 
 
-let camX = 0;
-let camY = 0;
-let camZ = 0;
+let cam = new Vec3(0,0,0);
 
 const walkSpeed = 5;
 const flySpeed = 5;
@@ -68,38 +66,38 @@ function frame() {
 
 
     if (keys.Space) {
-        camY += flySpeed*delta;
+        cam.y += flySpeed*delta;
     }
     if (keys.ShiftLeft || keys.ShiftRight) {
-        camY -= flySpeed*delta;
+        cam.y -= flySpeed*delta;
     }
     if (keys.KeyW) {
         let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI;
 
-        camZ += walkSpeed*delta*Math.cos(angleY);
-        camX += walkSpeed*delta*-Math.sin(angleY);
+        cam.z += walkSpeed*delta*Math.cos(angleY);
+        cam.x += walkSpeed*delta*-Math.sin(angleY);
     }
     if (keys.KeyS) {
         let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI;
 
-        camZ -= walkSpeed*delta*Math.cos(angleY);
-        camX -= walkSpeed*delta*-Math.sin(angleY);
+        cam.z -= walkSpeed*delta*Math.cos(angleY);
+        cam.x -= walkSpeed*delta*-Math.sin(angleY);
     }
     if (keys.KeyA) {
         let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI - 0.5*Math.PI;
 
-        camZ += walkSpeed*delta*Math.cos(angleY);
-        camX += walkSpeed*delta*-Math.sin(angleY);
+        cam.z += walkSpeed*delta*Math.cos(angleY);
+        cam.x += walkSpeed*delta*-Math.sin(angleY);
     }
     if (keys.KeyD) {
         let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI - 0.5*Math.PI;
 
-        camZ -= walkSpeed*delta*Math.cos(angleY);
-        camX -= walkSpeed*delta*-Math.sin(angleY);
+        cam.z -= walkSpeed*delta*Math.cos(angleY);
+        cam.x -= walkSpeed*delta*-Math.sin(angleY);
     }
 
 
-    document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${angleX}deg) rotateY(${angleY}deg)  translateX(${camX*100}px) translateY(${camY*100}px) translateZ(${camZ*100}px)`;
+    document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${angleX}deg) rotateY(${angleY}deg)  translateX(${cam.x*100}px) translateY(${cam.y*100}px) translateZ(${cam.z*100}px)`;
     
     //center origin
     document.querySelector('.world').style.transform += `translateX(${rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px)`;
