@@ -66,7 +66,7 @@ window.onload = () => {
         let x = Math.floor(Math.random() * 5) - 2;
         let y = -Math.floor(Math.random() * 5) - 1;
 
-        cube.style.transform = `translateX(${x*100 + rect.width*0.5-50}px) translateY(${y*100 + rect.height*0.5-50}px)`;
+        cube.style.transform = `translateX(${x*100}px) translateY(${y*100}px)`;
     }
 
     const world = document.querySelector('.world');
@@ -74,7 +74,7 @@ window.onload = () => {
         for (let z = -3; z <= 3; z++) {
             const block = document.createElement('div');
             block.className = 'cube';
-            block.style.transform = `translateX(${x*100 + rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px) translateZ(${z*100}px)`;
+            block.style.transform = `translateX(${x*100}px) translateY(${0}px) translateZ(${z*100}px)`;
             block.innerHTML = `
                 <div class="face front">front</div>
                 <div class="face back">back</div>
@@ -147,6 +147,9 @@ function frame() {
 
 
     document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${angleX}deg) rotateY(${angleY}deg)  translateX(${camX*100}px) translateY(${camY*100}px) translateZ(${camZ*100}px)`;
+    
+    //center origin
+    document.querySelector('.world').style.transform += `translateX(${rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px)`;
 
     requestAnimationFrame(frame);
 }
