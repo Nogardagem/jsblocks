@@ -1,6 +1,16 @@
 let mouseX = 0;
 let mouseY = 0;
 
+const keys = {
+    Space: false,
+    ShiftLeft: false,
+    ShiftRight: false,
+    KeyW: false,
+    KeyS: false,
+    KeyA: false,
+    KeyD: false
+};
+
 window.onload = () => {
     // var cube = document.querySelector('.cube');
     // var radioGroup = document.querySelector('.radio-group');
@@ -35,14 +45,18 @@ window.onload = () => {
         mouseY = y;
     });
 
-    document.body.addEventListener("keydown", function (event) {
-        //console.log(event.code);
-        if (event.code === "Space") {
-            camY += 1;
-        }
-        else if (event.code === "ShiftLeft" || event.code == "ShiftRight") {
-            camY -= 1;
-        }
+
+    // 2. Update state on keydown and keyup
+    window.addEventListener('keydown', (e) => {
+    if (keys.hasOwnProperty(e.code)) {
+        keys[e.code] = true;
+    }
+    });
+
+    window.addEventListener('keyup', (e) => {
+    if (keys.hasOwnProperty(e.code)) {
+        keys[e.code] = false;
+    }
     });
 
     
@@ -86,13 +100,53 @@ let camX = 0;
 let camY = 0;
 let camZ = 0;
 
+const walkSpeed = 5;
+const flySpeed = 5;
+
 function frame() {
     delta = (Date.now() - lastTime) / 1000.0;
     lastTime = Date.now();
 
     const scene = document.querySelector('.scene');
     const rect = scene.getBoundingClientRect();
-    document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${- (mouseY/rect.height - 0.5) * 90}deg) rotateY(${(mouseX/rect.width - 0.5) * 90}deg)  translateX(${camX*100}px) translateY(${camY*100}px)`;
+
+    let angleX = - (mouseY/rect.height - 0.5)*2 * 90;
+    let angleY = (mouseX/rect.width - 0.5)*2 * 90;
+
+
+    if (keys.Space) {
+        camY += flySpeed*delta;
+    }
+    if (keys.ShiftLeft || keys.ShiftRight) {
+        camY -= flySpeed*delta;
+    }
+    if (keys.KeyW) {
+        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI;
+
+        camZ += walkSpeed*delta*Math.cos(angleY);
+        camX += walkSpeed*delta*-Math.sin(angleY);
+    }
+    if (keys.KeyS) {
+        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI;
+
+        camZ -= walkSpeed*delta*Math.cos(angleY);
+        camX -= walkSpeed*delta*-Math.sin(angleY);
+    }
+    if (keys.KeyA) {
+        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI - 0.5*Math.PI;
+
+        camZ += walkSpeed*delta*Math.cos(angleY);
+        camX += walkSpeed*delta*-Math.sin(angleY);
+    }
+    if (keys.KeyD) {
+        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI - 0.5*Math.PI;
+
+        camZ -= walkSpeed*delta*Math.cos(angleY);
+        camX -= walkSpeed*delta*-Math.sin(angleY);
+    }
+
+
+    document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${angleX}deg) rotateY(${angleY}deg)  translateX(${camX*100}px) translateY(${camY*100}px) translateZ(${camZ*100}px)`;
 
     requestAnimationFrame(frame);
 }
