@@ -12,17 +12,9 @@ const keys = {
 };
 
 window.onload = () => {
-    const scene = document.querySelector('.scene');
-
     window.addEventListener('mousemove', (event) => {
-        const rect = scene.getBoundingClientRect();
-        
-        // Subtract the element's top/left offset from the mouse viewport coordinates
-        const x = event.clientX;
-        const y = event.clientY;
-
-        mouseX = x;
-        mouseY = y;
+        mouseX = event.clientX;
+        mouseY = event.clientY;
     });
 
 
@@ -39,34 +31,15 @@ window.onload = () => {
     }
     });
 
-    
-    const rect = document.querySelector('.scene').getBoundingClientRect();
-
-    for (cube of document.querySelectorAll('.cube')) {
-        let x = Math.floor(Math.random() * 5) - 2;
-        let y = -Math.floor(Math.random() * 5) - 1;
-
-        cube.style.transform = `translateX(${x*100}px) translateY(${y*100}px)`;
-    }
-
     const world = document.querySelector('.world');
-    for (let x = -3; x <= 3; x++) {
-        for (let z = -3; z <= 3; z++) {
-            const block = document.createElement('div');
-            block.className = 'cube';
-            block.style.transform = `translateX(${x*100}px) translateY(${0}px) translateZ(${z*100}px)`;
-            block.innerHTML = `
-                <div class="face front">front</div>
-                <div class="face back">back</div>
-                <div class="face right">right</div>
-                <div class="face left">left</div>
-                <div class="face top">top</div>
-                <div class="face bottom">bottom</div>
-            `;
-
-            world.appendChild(block);
+    for (let y = -3; y <= 3; y++) {
+        for (let x = -3; x <= 3; x++) {
+            for (let z = -3; z <= 3; z++) {
+                placeBlock(world, x,y,z);
+            }
         }
     }
+    
     
     requestAnimationFrame(frame);
 }
@@ -132,4 +105,22 @@ function frame() {
     document.querySelector('.world').style.transform += `translateX(${rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px)`;
 
     requestAnimationFrame(frame);
+}
+
+
+
+function placeBlock(world, x, y, z) {
+    const block = document.createElement('div');
+    block.className = `cube ${x}/${y}/${z}`;
+    block.style.transform = `translateX(${x*100}px) translateY(${y*100}px) translateZ(${z*100}px)`;
+    block.innerHTML = `
+        <div class="face front">front</div>
+        <div class="face back">back</div>
+        <div class="face right">right</div>
+        <div class="face left">left</div>
+        <div class="face top">top</div>
+        <div class="face bottom">bottom</div>
+    `;
+
+    world.appendChild(block);
 }
