@@ -17,6 +17,10 @@ window.onload = () => {
         mouseY = event.clientY;
     });
 
+    window.addEventListener('mousedown', (event) => {
+        mine();
+    });
+
 
     // 2. Update state on keydown and keyup
     window.addEventListener('keydown', (e) => {
@@ -103,7 +107,7 @@ function frame() {
     document.querySelector('.world').style.transform += `translateX(${rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px)`;
 
     let dir = new Vec3(0, 0, -1).rotateX(angleX*Math.PI / 180).rotateY(angleY*Math.PI / 180);
-    let hit = raycast(document.querySelector('.world'), cam.add(new Vec3(0,0,0)), dir, 20);
+    let hit = raycast(document.querySelector('.world'), cam, dir, 20);
     //document.querySelector('.crosshair').innerText = `x:${dir.x} y:${dir.y} z:${dir.z}`;
     
     if (hit) {
@@ -172,6 +176,60 @@ function placeBlock(world, x, y, z) {
     world.appendChild(block);
 }
 
+function breakBlock(world, x, y, z) {
+    const b = world.querySelector(`.cube._${x}_${y}_${z}`);
+    b.remove();
+
+    let s;
+
+    s = world.querySelector(`.cube._${x}_${y-1}_${z}`);
+    if (s) {
+        s.innerHTML += '<div class="face top">top</div>';
+    }
+
+    s = world.querySelector(`.cube._${x}_${y+1}_${z}`);
+    if (s) {
+        s.innerHTML += '<div class="face bottom">bottom</div>';
+    }
+
+
+    s = world.querySelector(`.cube._${x-1}_${y}_${z}`);
+    if (s) {
+        s.innerHTML += '<div class="face right">right</div>';
+    }
+
+    s = world.querySelector(`.cube._${x+1}_${y}_${z}`);
+    if (s) {
+        s.innerHTML += '<div class="face left">left</div>';
+    }
+
+
+    s = world.querySelector(`.cube._${x}_${y}_${z-1}`);
+    if (s) {
+        s.innerHTML += '<div class="face front">front</div>';
+    }
+
+    s = world.querySelector(`.cube._${x}_${y}_${z+1}`);
+    if (s) {
+        s.innerHTML += '<div class="face back">back</div>';
+    }
+}
+
+
+
+function mine() {
+    const scene = document.querySelector('.scene');
+    const world = document.querySelector('.world');
+    const rect = scene.getBoundingClientRect();
+    let angleX = - (mouseY/rect.height - 0.5)*2 * 90;
+    let angleY = (mouseX/rect.width - 0.5)*2 * 90;
+    let dir = new Vec3(0, 0, -1).rotateX(angleX*Math.PI / 180).rotateY(angleY*Math.PI / 180);
+    let hit = raycast(world, cam, dir, 20);
+
+    if (hit) {
+        breakBlock(world, hit.x, hit.y, hit.z);
+    }
+}
 
 
 function raycast(world, from, dir, range=10) {
