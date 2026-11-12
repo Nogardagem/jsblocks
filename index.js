@@ -1,6 +1,9 @@
 let mouseX = 0;
 let mouseY = 0;
 
+let angleX = 0;
+let angleY = 0;
+
 const keys = {
     Space: false,
     ShiftLeft: false,
@@ -12,10 +15,43 @@ const keys = {
 };
 
 window.onload = () => {
-    window.addEventListener('mousemove', (event) => {
-        mouseX = event.clientX;
-        mouseY = event.clientY;
+    const ui = document.querySelector('.ui');
+    const scene = document.querySelector('.scene');
+    const rect = scene.getBoundingClientRect();
+    // Pointer lock requires a user gesture like a click
+    ui.addEventListener('click', async () => {
+        await ui.requestPointerLock({
+            unadjustedMovement: true,
+        });
     });
+
+    document.addEventListener('mousemove', (event) => {
+        if (document.pointerLockElement === ui) {
+            // Use movementX/Y because clientX/Y remain frozen when locked
+            mouseX += event.movementX;
+            mouseY += event.movementY;
+
+            // if (mouseY < 0) {mouseY = 0;}
+            // if (mouseY > rect.height) {mouseY = rect.height;}
+            angleX += -event.movementY*0.005;
+            angleY += event.movementX*0.005;
+
+            if (angleX > 0.5*Math.PI) {angleX = 0.5*Math.PI;}
+            if (angleX < -0.5*Math.PI) {angleX = -0.5*Math.PI;}
+
+            while (angleY < 0) {
+                angleY += Math.PI*2.0;
+            }
+            while (angleY > Math.PI*2.0) {
+                angleY -= Math.PI * 2.0;
+            }
+        }
+    });
+
+    // window.addEventListener('mousemove', (event) => {
+    //     mouseX = event.clientX;
+    //     mouseY = event.clientY;
+    // });
 
     window.addEventListener('mousedown', (event) => {
         mine();
@@ -55,8 +91,8 @@ let lastTime = Date.now();
 
 let cam = new Vec3(0,0,0);
 
-const walkSpeed = 5;
-const flySpeed = 5;
+const walkSpeed = 10;
+const flySpeed = 10;
 
 function frame() {
     delta = (Date.now() - lastTime) / 1000.0;
@@ -65,8 +101,8 @@ function frame() {
     const scene = document.querySelector('.scene');
     const rect = scene.getBoundingClientRect();
 
-    let angleX = - (mouseY/rect.height - 0.5) * Math.PI;
-    let angleY = (mouseX/rect.width - 0.5) * Math.PI;
+    // let angleX = - (mouseY/rect.height - 0.5) * Math.PI;
+    // let angleY = (mouseX/rect.width - 0.5) * Math.PI;
 
 
     if (keys.Space) {
@@ -221,8 +257,8 @@ function mine() {
     const scene = document.querySelector('.scene');
     const world = document.querySelector('.world');
     const rect = scene.getBoundingClientRect();
-    let angleX = - (mouseY/rect.height - 0.5) * Math.PI;
-    let angleY = (mouseX/rect.width - 0.5) * Math.PI;
+    // let angleX = - (mouseY/rect.height - 0.5) * Math.PI;
+    // let angleY = (mouseX/rect.width - 0.5) * Math.PI;
     let dir = new Vec3(0, 0, -1).rotateX(angleX).rotateY(angleY);
     let hit = raycast(world, cam, dir, 20);
 
