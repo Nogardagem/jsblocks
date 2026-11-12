@@ -65,8 +65,8 @@ function frame() {
     const scene = document.querySelector('.scene');
     const rect = scene.getBoundingClientRect();
 
-    let angleX = - (mouseY/rect.height - 0.5)*2 * 90;
-    let angleY = (mouseX/rect.width - 0.5)*2 * 90;
+    let angleX = - (mouseY/rect.height - 0.5) * Math.PI;
+    let angleY = (mouseX/rect.width - 0.5) * Math.PI;
 
 
     if (keys.Space) {
@@ -76,37 +76,29 @@ function frame() {
         cam.y -= flySpeed*delta;
     }
     if (keys.KeyW) {
-        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI;
-
         cam.z -= walkSpeed*delta*Math.cos(angleY);
         cam.x -= walkSpeed*delta*-Math.sin(angleY);
     }
     if (keys.KeyS) {
-        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI;
-
         cam.z += walkSpeed*delta*Math.cos(angleY);
         cam.x += walkSpeed*delta*-Math.sin(angleY);
     }
     if (keys.KeyA) {
-        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI - 0.5*Math.PI;
-
-        cam.z -= walkSpeed*delta*Math.cos(angleY);
-        cam.x -= walkSpeed*delta*-Math.sin(angleY);
+        cam.z -= walkSpeed*delta*Math.cos(angleY - 0.5*Math.PI);
+        cam.x -= walkSpeed*delta*-Math.sin(angleY - 0.5*Math.PI);
     }
     if (keys.KeyD) {
-        let angleY = (mouseX/rect.width - 0.5)*2 * 0.5*Math.PI - 0.5*Math.PI;
-
-        cam.z += walkSpeed*delta*Math.cos(angleY);
-        cam.x += walkSpeed*delta*-Math.sin(angleY);
+        cam.z += walkSpeed*delta*Math.cos(angleY - 0.5*Math.PI);
+        cam.x += walkSpeed*delta*-Math.sin(angleY - 0.5*Math.PI);
     }
 
 
-    document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${angleX}deg) rotateY(${angleY}deg)  translateX(${-cam.x*100}px) translateY(${cam.y*100}px) translateZ(${-cam.z*100}px)`;
+    document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${angleX}rad) rotateY(${angleY}rad)  translateX(${-cam.x*100}px) translateY(${cam.y*100}px) translateZ(${-cam.z*100}px)`;
     
     //center origin
     document.querySelector('.world').style.transform += `translateX(${rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px)`;
 
-    let dir = new Vec3(0, 0, -1).rotateX(angleX*Math.PI / 180).rotateY(angleY*Math.PI / 180);
+    let dir = new Vec3(0, 0, -1).rotateX(angleX).rotateY(angleY);
     let hit = raycast(document.querySelector('.world'), cam, dir);
     //document.querySelector('.crosshair').innerText = `x:${dir.x} y:${dir.y} z:${dir.z}`;
     
@@ -229,9 +221,9 @@ function mine() {
     const scene = document.querySelector('.scene');
     const world = document.querySelector('.world');
     const rect = scene.getBoundingClientRect();
-    let angleX = - (mouseY/rect.height - 0.5)*2 * 90;
-    let angleY = (mouseX/rect.width - 0.5)*2 * 90;
-    let dir = new Vec3(0, 0, -1).rotateX(angleX*Math.PI / 180).rotateY(angleY*Math.PI / 180);
+    let angleX = - (mouseY/rect.height - 0.5) * Math.PI;
+    let angleY = (mouseX/rect.width - 0.5) * Math.PI;
+    let dir = new Vec3(0, 0, -1).rotateX(angleX).rotateY(angleY);
     let hit = raycast(world, cam, dir, 20);
 
     if (hit) {
