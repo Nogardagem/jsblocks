@@ -99,3 +99,27 @@ body { font-family: sans-serif; margin:0;}
 .hface.left   { transform: rotateY(-90deg) translateZ(60px); background: transparent; }
 .hface.top    { transform: rotateX( 90deg) translateZ(60px); background: transparent; }
 .hface.bottom { transform: rotateX(-90deg) translateZ(60px); background: transparent; }
+
+
+.prism {
+    width: 0;
+    height: 0;
+    position: absolute;
+    transform-style: preserve-3d;
+}
+
+.pface {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 2px solid black;
+
+    backface-visibility: hidden;
+}
+
+.pface.front  { width: var(--width); height: var(--height); transform: translateX(calc(var(--width)/-2)) translateY(calc(var(--height)/-2)) rotateY(  0deg) translateZ(calc(var(--depth)/2)); }
+.pface.right  { width: var(--depth); height: var(--height); transform: translateX(calc(var(--depth)/-2)) translateY(calc(var(--height)/-2)) rotateY( 90deg) translateZ(calc(var(--width)/2)); }
+.pface.back   { width: var(--width); height: var(--height); transform: translateX(calc(var(--width)/-2)) translateY(calc(var(--height)/-2)) rotateY(180deg) translateZ(calc(var(--depth)/2)); }
+.pface.left   { width: var(--depth); height: var(--height); transform: translateX(calc(var(--depth)/-2)) translateY(calc(var(--height)/-2)) rotateY(-90deg) translateZ(calc(var(--width)/2)); }
+.pface.top    { width: var(--width); height: var(--depth); transform: translateX(calc(var(--width)/-2)) translateY(calc(var(--depth)/-2)) rotateX( 90deg) translateZ(calc(var(--height)/2)); }
+.pface.bottom { width: var(--width); height: var(--depth); transform: translateX(calc(var(--width)/-2)) translateY(calc(var(--depth)/-2)) rotateX(-90deg) translateZ(calc(var(--height)/2)); }

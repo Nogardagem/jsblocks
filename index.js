@@ -99,7 +99,7 @@ let delta = 0;
 let lastTime = Date.now();
 
 
-let cam = new Vec3(0,0,0);
+let cam = new Vec3(4,9,4);
 
 const walkSpeed = 10;
 const flySpeed = 10;
@@ -266,7 +266,7 @@ function makeBlockDiv(x, y, z) {
 function mine() {
     const world = document.querySelector('.world');
     let dir = new Vec3(0, 0, -1).rotateX(angleX).rotateY(angleY);
-    let hit = raycast(world, cam, dir, 20);
+    let hit = raycast(world, cam, dir);
 
     if (hit) {
         breakBlock(world, hit.x, hit.y, hit.z);
@@ -276,7 +276,7 @@ function mine() {
 function build() {
     const world = document.querySelector('.world');
     let dir = new Vec3(0, 0, -1).rotateX(angleX).rotateY(angleY);
-    let hit = raycastBefore(world, cam, dir, 20);
+    let hit = raycastBefore(world, cam, dir);
 
     if (hit && !(getBlockDiv(world, hit.x, hit.y, hit.z))) {
         placeBlock(world, hit.x, hit.y, hit.z);
