@@ -54,7 +54,17 @@ window.onload = () => {
     // });
 
     window.addEventListener('mousedown', (event) => {
-        mine();
+        if (event.button === 0) {
+            //left button
+            mine();
+        }
+        else if (event.button === 1) {
+            //middle mouse button
+        }
+        else if (event.button === 2) {
+            //right button
+            build();
+        }
     });
 
 
@@ -254,11 +264,7 @@ function makeBlockDiv(x, y, z) {
 
 
 function mine() {
-    const scene = document.querySelector('.scene');
     const world = document.querySelector('.world');
-    const rect = scene.getBoundingClientRect();
-    // let angleX = - (mouseY/rect.height - 0.5) * Math.PI;
-    // let angleY = (mouseX/rect.width - 0.5) * Math.PI;
     let dir = new Vec3(0, 0, -1).rotateX(angleX).rotateY(angleY);
     let hit = raycast(world, cam, dir, 20);
 
@@ -267,15 +273,42 @@ function mine() {
     }
 }
 
+function build() {
+    const world = document.querySelector('.world');
+    let dir = new Vec3(0, 0, -1).rotateX(angleX).rotateY(angleY);
+    let hit = raycastBefore(world, cam, dir, 20);
+
+    if (hit && !(getBlockDiv(world, hit.x, hit.y, hit.z))) {
+        placeBlock(world, hit.x, hit.y, hit.z);
+    }
+}
+
 
 function raycast(world, from, dir, range=10) {
-    for (let i = 0; i < range; i+= 0.1) {
+    for (let i = 0; i < range; i+= 0.05) {
         let test = from.add(dir.scale(i));
         let t = world.querySelector(`._${Math.round(test.x)}_${Math.round(test.y)}_${Math.round(test.z)}`);
 
         if (t) {
             return new Vec3(Math.round(test.x), Math.round(test.y), Math.round(test.z));
         }
+    }
+
+    return undefined;
+}
+
+//raycast but stop the block before hit
+function raycastBefore(world, from, dir, range=10) {
+    let last = from;
+
+    for (let i = 0; i < range; i+= 0.05) {
+        let test = from.add(dir.scale(i));
+        let t = world.querySelector(`._${Math.round(test.x)}_${Math.round(test.y)}_${Math.round(test.z)}`);
+
+        if (t) {
+            return last;
+        }
+        last = new Vec3(Math.round(test.x), Math.round(test.y), Math.round(test.z));
     }
 
     return undefined;
