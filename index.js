@@ -107,12 +107,18 @@ function frame() {
     document.querySelector('.world').style.transform += `translateX(${rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px)`;
 
     let dir = new Vec3(0, 0, -1).rotateX(angleX*Math.PI / 180).rotateY(angleY*Math.PI / 180);
-    let hit = raycast(document.querySelector('.world'), cam, dir, 20);
+    let hit = raycast(document.querySelector('.world'), cam, dir);
     //document.querySelector('.crosshair').innerText = `x:${dir.x} y:${dir.y} z:${dir.z}`;
     
+    const highlight = document.querySelector('.world .highlight');
+
     if (hit) {
         //offsets by ten for difference in highlight vs block size (halved)
-        document.querySelector('.world .highlight').style.transform = `translateX(${hit.x*100 -10}px) translateY(${-hit.y*100 -10}px) translateZ(${hit.z*100}px)`;
+        highlight.style.transform = `translateX(${hit.x*100 -10}px) translateY(${-hit.y*100 -10}px) translateZ(${hit.z*100}px)`;
+        highlight.style.display = 'block';
+    }
+    else {
+        highlight.style.display = 'none';
     }
 
     
@@ -122,53 +128,43 @@ function frame() {
 
 
 function placeBlock(world, x, y, z) {
-    const block = document.createElement('div');
-    block.className = `cube _${x}_${y}_${z}`;
-    block.style.transform = `translateX(${x*100}px) translateY(${-y*100}px) translateZ(${z*100}px)`;
-    block.innerHTML = `
-        <div class="face front">front</div>
-        <div class="face back">back</div>
-        <div class="face right">right</div>
-        <div class="face left">left</div>
-        <div class="face top">top</div>
-        <div class="face bottom">bottom</div>
-    `;
+    const block = makeBlockDiv(x, y, z);
 
     let s;
 
-    s = world.querySelector(`.cube._${x}_${y-1}_${z}`);
+    s = getBlockDiv(world, x, y-1, z);
     if (s) {
         s.querySelector('.top').remove();
         block.querySelector('.bottom').remove();
     }
 
-    s = world.querySelector(`.cube._${x}_${y+1}_${z}`);
+    s = getBlockDiv(world, x, y+1, z);
     if (s) {
         s.querySelector('.bottom').remove();
         block.querySelector('.top').remove();
     }
 
 
-    s = world.querySelector(`.cube._${x-1}_${y}_${z}`);
+    s = getBlockDiv(world, x-1, y, z);
     if (s) {
         s.querySelector('.right').remove();
         block.querySelector('.left').remove();
     }
 
-    s = world.querySelector(`.cube._${x+1}_${y}_${z}`);
+    s = getBlockDiv(world, x+1, y, z);
     if (s) {
         s.querySelector('.left').remove();
         block.querySelector('.right').remove();
     }
 
 
-    s = world.querySelector(`.cube._${x}_${y}_${z-1}`);
+    s = getBlockDiv(world, x, y, z-1);
     if (s) {
         s.querySelector('.front').remove();
         block.querySelector('.back').remove();
     }
 
-    s = world.querySelector(`.cube._${x}_${y}_${z+1}`);
+    s = getBlockDiv(world, x, y, z+1);
     if (s) {
         s.querySelector('.back').remove();
         block.querySelector('.front').remove();
@@ -183,39 +179,50 @@ function breakBlock(world, x, y, z) {
 
     let s;
 
-    s = world.querySelector(`.cube._${x}_${y-1}_${z}`);
+    s = getBlockDiv(world, x, y-1, z);
     if (s) {
-        s.innerHTML += '<div class="face top">top</div>';
+        s.innerHTML += faceDiv('top');
+    }
+    s = getBlockDiv(world, x, y+1, z);
+    if (s) {
+        s.innerHTML += faceDiv('bottom');
     }
 
-    s = world.querySelector(`.cube._${x}_${y+1}_${z}`);
+    s = getBlockDiv(world, x-1, y, z);
     if (s) {
-        s.innerHTML += '<div class="face bottom">bottom</div>';
+        s.innerHTML += faceDiv('right');
+    }
+    s = getBlockDiv(world, x+1, y, z);
+    if (s) {
+        s.innerHTML += faceDiv('left');
     }
 
-
-    s = world.querySelector(`.cube._${x-1}_${y}_${z}`);
+    s = getBlockDiv(world, x, y, z-1);
     if (s) {
-        s.innerHTML += '<div class="face right">right</div>';
+        s.innerHTML += faceDiv('front');
     }
-
-    s = world.querySelector(`.cube._${x+1}_${y}_${z}`);
+    s = getBlockDiv(world, x, y, z+1);
     if (s) {
-        s.innerHTML += '<div class="face left">left</div>';
-    }
-
-
-    s = world.querySelector(`.cube._${x}_${y}_${z-1}`);
-    if (s) {
-        s.innerHTML += '<div class="face front">front</div>';
-    }
-
-    s = world.querySelector(`.cube._${x}_${y}_${z+1}`);
-    if (s) {
-        s.innerHTML += '<div class="face back">back</div>';
+        s.innerHTML += faceDiv('back');
     }
 }
 
+function faceDiv(face) {
+    return `<div class="face ${face}">${face}</div>`;
+}
+
+
+function getBlockDiv(world, x, y, z) {
+    return world.querySelector(`.cube._${x}_${y}_${z}`);
+}
+
+function makeBlockDiv(x, y, z) {
+    const block = document.createElement('div');
+    block.className = `cube _${x}_${y}_${z}`;
+    block.style.transform = `translateX(${x*100}px) translateY(${-y*100}px) translateZ(${z*100}px)`;
+    block.innerHTML = faceDiv('front') + faceDiv('back') + faceDiv('left') + faceDiv('right') + faceDiv('top') + faceDiv('bottom');
+    return block;
+}
 
 
 function mine() {
