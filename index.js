@@ -11,7 +11,11 @@ const keys = {
     KeyW: false,
     KeyS: false,
     KeyA: false,
-    KeyD: false
+    KeyD: false,
+    ArrowLeft: false,
+    ArrowRight: false,
+    ArrowDown: false,
+    ArrowUp: false
 };
 
 window.onload = () => {
@@ -104,15 +108,17 @@ let cam = new Vec3(4,9,4);
 const walkSpeed = 10;
 const flySpeed = 10;
 
+
+let boxSize = new Vec3(2,1,3);
+let boxPos = new Vec3(0,10,0);
+
+
 function frame() {
     delta = (Date.now() - lastTime) / 1000.0;
     lastTime = Date.now();
 
     const scene = document.querySelector('.scene');
     const rect = scene.getBoundingClientRect();
-
-    // let angleX = - (mouseY/rect.height - 0.5) * Math.PI;
-    // let angleY = (mouseX/rect.width - 0.5) * Math.PI;
 
 
     if (keys.Space) {
@@ -139,10 +145,24 @@ function frame() {
     }
 
 
+    if (keys.ArrowUp) {
+        boxPos.y += walkSpeed*delta;
+    }
+    if (keys.ArrowDown) {
+        boxPos.y -= walkSpeed*delta;
+    }
+    if (keys.ArrowLeft) {
+        boxPos.x -= walkSpeed*delta;
+    }
+    if (keys.ArrowRight) {
+        boxPos.x += walkSpeed*delta;
+    }
+
+
     document.querySelector('.world').style.transform = `translateZ(50vw) rotateX(${angleX}rad) rotateY(${angleY}rad)  translateX(${-cam.x*100}px) translateY(${cam.y*100}px) translateZ(${-cam.z*100}px)`;
     
     //center origin
-    document.querySelector('.world').style.transform += `translateX(${rect.width*0.5-50}px) translateY(${rect.height*0.5-50}px)`;
+    document.querySelector('.world').style.transform += `translateX(${rect.width*0.5}px) translateY(${rect.height*0.5}px)`;
 
     let dir = new Vec3(0, 0, -1).rotateX(angleX).rotateY(angleY);
     let hit = raycast(document.querySelector('.world'), cam, dir);
@@ -152,13 +172,26 @@ function frame() {
 
     if (hit) {
         //offsets by ten for difference in highlight vs block size (halved)
-        highlight.style.transform = `translateX(${hit.x*100 -10}px) translateY(${-hit.y*100 -10}px) translateZ(${hit.z*100}px)`;
+        highlight.style.transform = `translateX(${hit.x*100 -60}px) translateY(${-hit.y*100 -60}px) translateZ(${hit.z*100}px)`;
         highlight.style.display = 'block';
     }
     else {
         highlight.style.display = 'none';
     }
 
+    const testbox = document.querySelector('#testbox');
+    testbox.style.setProperty('--width', `${boxSize.x*100}px`);
+    testbox.style.setProperty('--height', `${boxSize.y*100}px`);
+    testbox.style.setProperty('--depth', `${boxSize.z*100}px`);
+
+    testbox.style.transform = `translate3d(${boxPos.x*100}px, ${-boxPos.y*100}px, ${boxPos.z*100}px)`;
+
+    if (boxHits(document.querySelector('.world'), boxSize.x, boxSize.y, boxSize.z, boxPos.x, boxPos.y, boxPos.z)) {
+        testbox.querySelector('.top').innerText = 'HITS';
+    }
+    else {
+        testbox.querySelector('.top').innerText = 'nope';
+    }
     
     requestAnimationFrame(frame);
 }
@@ -212,7 +245,7 @@ function placeBlock(world, x, y, z) {
 }
 
 function breakBlock(world, x, y, z) {
-    const b = world.querySelector(`.cube._${x}_${y}_${z}`);
+    const b = getBlockDiv(world, x, y, z);
     b.remove();
 
     let s;
@@ -257,7 +290,7 @@ function getBlockDiv(world, x, y, z) {
 function makeBlockDiv(x, y, z) {
     const block = document.createElement('div');
     block.className = `cube _${x}_${y}_${z}`;
-    block.style.transform = `translateX(${x*100}px) translateY(${-y*100}px) translateZ(${z*100}px)`;
+    block.style.transform = `translateX(${x*100-50}px) translateY(${-y*100-50}px) translateZ(${z*100}px)`;
     block.innerHTML = faceDiv('front') + faceDiv('back') + faceDiv('left') + faceDiv('right') + faceDiv('top') + faceDiv('bottom');
     return block;
 }
@@ -287,7 +320,7 @@ function build() {
 function raycast(world, from, dir, range=10) {
     for (let i = 0; i < range; i+= 0.05) {
         let test = from.add(dir.scale(i));
-        let t = world.querySelector(`._${Math.round(test.x)}_${Math.round(test.y)}_${Math.round(test.z)}`);
+        let t = getBlockDiv(world, Math.round(test.x), Math.round(test.y), Math.round(test.z));
 
         if (t) {
             return new Vec3(Math.round(test.x), Math.round(test.y), Math.round(test.z));
@@ -303,7 +336,7 @@ function raycastBefore(world, from, dir, range=10) {
 
     for (let i = 0; i < range; i+= 0.05) {
         let test = from.add(dir.scale(i));
-        let t = world.querySelector(`._${Math.round(test.x)}_${Math.round(test.y)}_${Math.round(test.z)}`);
+        let t = getBlockDiv(world, Math.round(test.x), Math.round(test.y), Math.round(test.z));
 
         if (t) {
             return last;
@@ -312,4 +345,50 @@ function raycastBefore(world, from, dir, range=10) {
     }
 
     return undefined;
+}
+
+
+function boxHits(world, w, h, d, x, y, z) {
+    if (raycast(world, new Vec3(x-w/2, y-h/2, z-d/2), new Vec3(0,0,1), d)) {
+        return true;
+    }
+    if (raycast(world, new Vec3(x-w/2, y-h/2, z-d/2), new Vec3(0,1,0), h)) {
+        return true;
+    }
+    if (raycast(world, new Vec3(x-w/2, y-h/2, z-d/2), new Vec3(1,0,0), w)) {
+        return true;
+    }
+
+    if (raycast(world, new Vec3(x+w/2, y+h/2, z+d/2), new Vec3(0,0,-1), d)) {
+        return true;
+    }
+    if (raycast(world, new Vec3(x+w/2, y+h/2, z+d/2), new Vec3(0,-1,0), h)) {
+        return true;
+    }
+    if (raycast(world, new Vec3(x+w/2, y+h/2, z+d/2), new Vec3(-1,0,0), w)) {
+        return true;
+    }
+
+    if (raycast(world, new Vec3(x+w/2, y-h/2, z-d/2), new Vec3(0,0,1), d)) {
+        return true;
+    }
+    if (raycast(world, new Vec3(x+w/2, y-h/2, z-d/2), new Vec3(0,1,0), h)) {
+        return true;
+    }
+
+    if (raycast(world, new Vec3(x-w/2, y+h/2, z-d/2), new Vec3(0,0,1), d)) {
+        return true;
+    }
+    if (raycast(world, new Vec3(x-w/2, y+h/2, z-d/2), new Vec3(1,0,0), w)) {
+        return true;
+    }
+
+    if (raycast(world, new Vec3(x-w/2, y-h/2, z+d/2), new Vec3(0,1,0), h)) {
+        return true;
+    }
+    if (raycast(world, new Vec3(x-w/2, y-h/2, z+d/2), new Vec3(1,0,0), w)) {
+        return true;
+    }
+    
+    return false;
 }
